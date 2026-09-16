@@ -81,6 +81,21 @@ describe("createHelius", () => {
       expect(url).toContain(`api-key=${apiKey}`);
       expect(url).toContain(`rebate-address=${rebateAddress}`);
     });
+
+    it("appends to a custom baseUrl that already has a query", () => {
+      const apiKey = "test-api-key";
+      const rebateAddress = "rebate-address-123";
+      createHelius({
+        baseUrl: "https://proxy.example.com/rpc?token=abc",
+        apiKey,
+        rebateAddress,
+      });
+
+      const params = new URL(getUrlFromTransport()).searchParams;
+      expect(params.get("token")).toBe("abc");
+      expect(params.get("api-key")).toBe(apiKey);
+      expect(params.get("rebate-address")).toBe(rebateAddress);
+    });
   });
 
   describe("webhooks without apiKey", () => {
@@ -292,6 +307,20 @@ describe("createHeliusEager", () => {
       const url = getUrlFromTransport();
       expect(url).toContain(customBaseUrl);
       expect(url).not.toContain("api-key");
+    });
+
+    it("appends to a custom baseUrl that already has a query", async () => {
+      const apiKey = "test-api-key";
+      const rpc = createHeliusEager({
+        baseUrl: "https://proxy.example.com/rpc?token=abc",
+        apiKey,
+      });
+
+      await rpc.getAsset({ id: "test-id" });
+
+      const params = new URL(getUrlFromTransport()).searchParams;
+      expect(params.get("token")).toBe("abc");
+      expect(params.get("api-key")).toBe(apiKey);
     });
   });
 

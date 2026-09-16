@@ -200,7 +200,11 @@ export const createHelius = ({
     queryParams.push(`rebate-address=${rebateAddress}`);
   }
 
-  const queryString = queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
+  // A custom baseUrl may already carry a query (proxy tokens, for example), so
+  // the first appended param joins with "&" rather than starting a second "?"
+  const separator = resolvedBaseUrl.includes("?") ? "&" : "?";
+  const queryString =
+    queryParams.length > 0 ? `${separator}${queryParams.join("&")}` : "";
   const url = `${resolvedBaseUrl}${queryString}`;
 
   const solanaApi = createSolanaRpcApi(DEFAULT_RPC_CONFIG);
